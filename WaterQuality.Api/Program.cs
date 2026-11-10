@@ -21,7 +21,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<IMongoDbContext>(sp =>
 {
-    var connectionString = "mongodb://192.168.0.65:27017";
+    var connectionString = "mongodb://admin:password@192.168.0.7:27017/WaterQuality?authSource=admin";
     var dbName = "WaterQuality";
     return new MongoDbContext(connectionString, dbName);
 });
@@ -34,11 +34,23 @@ builder.Services.AddScoped<IWaterService, WaterService>();
 // Configure Kestrel to listen on a specific port
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(8080);
+    options.ListenAnyIP(8090);
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
 });
 
 WebApplication app = builder.Build();
 
+app.UseCors("AllowAll");
 app.UseSwagger();
 app.UseSwaggerUI();
 
